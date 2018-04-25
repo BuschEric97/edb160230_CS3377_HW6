@@ -25,7 +25,7 @@ int main()
   ifstream binInfile("cs3377.bin", ios::in | ios::binary);
   BinaryFileHeader *myHeader = new BinaryFileHeader();
   BinaryFileRecord *myRecord = new BinaryFileRecord();
-  string cellText;
+  char cellText[30];
   
   if (!binInfile) // check if the binary file opened properly
     {
@@ -68,19 +68,16 @@ int main()
   binInfile.read((char *) myHeader, sizeof(BinaryFileHeader));
   
   // build the text for cell (1,1) and insert it into cell (1,1)
-  cellText.append("Magic: 0x");
-  cellText.append(to_string(myHeader->magicNumber));
-  setCDKMatrixCell(myMatrix, 1, 1, cellText.c_str());
+  sprintf(cellText, "Magic: 0x%X", myHeader->magicNumber);
+  setCDKMatrixCell(myMatrix, 1, 1, cellText);
   
   // build the text for cell (1,2) and insert it into cell (1,2)
-  cellText = "Version: ";
-  cellText.append(to_string(myHeader->versionNumber));
-  setCDKMatrixCell(myMatrix, 1, 2, cellText.c_str());
+  sprintf(cellText, "Version: %u", myHeader->versionNumber);
+  setCDKMatrixCell(myMatrix, 1, 2, cellText);
   
   // build the text for cell (1,3) and insert it into cell (1,3)
-  cellText = "NumRecords: ";
-  cellText.append(to_string(myHeader->numRecords));
-  setCDKMatrixCell(myMatrix, 1, 3, cellText.c_str());
+  sprintf(cellText, "NumRecords: %lu", myHeader->numRecords);
+  setCDKMatrixCell(myMatrix, 1, 3, cellText);
   
   // read in the each record and put them in the matrix
   for (unsigned int i = 1; i <= myHeader->numRecords; i++)
@@ -89,13 +86,11 @@ int main()
       binInfile.read((char *) myRecord, sizeof(BinaryFileRecord));
       
       // build the strlen string and add it to the matrix
-      cellText = "strlen: ";
-      cellText.append(to_string(myRecord->strLength));
-      setCDKMatrixCell(myMatrix, i+1, 1, cellText.c_str());
+      sprintf(cellText, "strlen: %u", myRecord->strLength);
+      setCDKMatrixCell(myMatrix, i+1, 1, cellText);
 
-      // build the stringBuffer string and add it to the matrix
-      cellText = myRecord->stringBuffer;
-      setCDKMatrixCell(myMatrix, i+1, 2, cellText.c_str());
+      // add stringBuffer to the matrix
+      setCDKMatrixCell(myMatrix, i+1, 2, myRecord->stringBuffer);
     }
   
   // draw the matrix
