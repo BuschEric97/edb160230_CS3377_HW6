@@ -8,7 +8,7 @@
 
 # Set up info for C++ implicit rules
 CXX = g++
-CXXFLAGS = -Wall -I /scratch/perkins/include
+CXXFLAGS = -Wall -I /scratch/perkins/include -std=c++0x
 CPPFLAGS = 
 
 # compiler flags

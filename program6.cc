@@ -14,7 +14,7 @@
 
 #define MATRIX_WIDTH 3
 #define MATRIX_HEIGHT 5
-#define BOX_WIDTH 15
+#define BOX_WIDTH 20
 #define MATRIX_NAME_STRING "Binary File Contents"
 
 using namespace std;
@@ -23,11 +23,15 @@ int main()
 {
   // open the binary file for later reading
   ifstream binInfile("cs3377.bin", ios::in | ios::binary);
-  BinaryFileHeader myHeader;
-  string magicNumber = "Magic: ";
-  string versionNumber = "Version: ";
-  string numRecords = "NumRecords: ";
-  BinaryFileRecord myRecord[4];
+  BinaryFileHeader *myHeader = new BinaryFileHeader();
+  BinaryFileRecord *myRecord = new BinaryFileRecord();
+  string cellText;
+  
+  if (!binInfile) // check if the binary file opened properly
+    {
+      cerr << "error: could not open binary file" << endl;
+      exit(EXIT_FAILURE);
+    }
   
   // initialize CDK variables
   WINDOW *window;
@@ -57,16 +61,42 @@ int main()
       exit(EXIT_FAILURE);
     }
   
+  // draw an empty matrix
+  //drawCDKMatrix(myMatrix, true);
+  
   // read in the header of the binary file
   binInfile.read((char *) myHeader, sizeof(BinaryFileHeader));
-  magicNumber.append((string) myHeader.magicNumber);
-  versionNumber.append((string) myHeader.versionNumber);
-  numRecords.append((string) myHeader.numRecords);
   
-  // fill in cells (1,1), (1,2), and (1,3) with the info from file header
-  setCDKMatrixCell(myMatrix, 1, 1, magicNumber.c_str());
-  setCDKMatrixCell(myMatrix, 1, 2, versionNumber.c_str());
-  setCDKMatrixCell(myMatrix, 1, 3, numRecords.c_str());
+  // build the text for cell (1,1) and insert it into cell (1,1)
+  cellText.append("Magic: 0x");
+  cellText.append(to_string(myHeader->magicNumber));
+  setCDKMatrixCell(myMatrix, 1, 1, cellText.c_str());
+  
+  // build the text for cell (1,2) and insert it into cell (1,2)
+  cellText = "Version: ";
+  cellText.append(to_string(myHeader->versionNumber));
+  setCDKMatrixCell(myMatrix, 1, 2, cellText.c_str());
+  
+  // build the text for cell (1,3) and insert it into cell (1,3)
+  cellText = "NumRecords: ";
+  cellText.append(to_string(myHeader->numRecords));
+  setCDKMatrixCell(myMatrix, 1, 3, cellText.c_str());
+  
+  // read in the each record and put them in the matrix
+  for (unsigned int i = 1; i <= myHeader->numRecords; i++)
+    {
+      // read the next record
+      binInfile.read((char *) myRecord, sizeof(BinaryFileRecord));
+      
+      // build the strlen string and add it to the matrix
+      cellText = "strlen: ";
+      cellText.append(to_string(myRecord->strLength));
+      setCDKMatrixCell(myMatrix, i+1, 1, cellText.c_str());
+
+      // build the stringBuffer string and add it to the matrix
+      cellText = myRecord->stringBuffer;
+      setCDKMatrixCell(myMatrix, i+1, 2, cellText.c_str());
+    }
   
   // draw the matrix
   drawCDKMatrix(myMatrix, true);
