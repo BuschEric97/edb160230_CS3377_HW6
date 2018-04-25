@@ -25,6 +25,7 @@ int main()
   ifstream binInfile("cs3377.bin", ios::in | ios::binary);
   BinaryFileHeader *myHeader = new BinaryFileHeader();
   BinaryFileRecord *myRecord = new BinaryFileRecord();
+  char buffer[30];
   string cellText;
   
   if (!binInfile) // check if the binary file opened properly
@@ -68,9 +69,8 @@ int main()
   binInfile.read((char *) myHeader, sizeof(BinaryFileHeader));
   
   // build the text for cell (1,1) and insert it into cell (1,1)
-  cellText.append("Magic: 0x");
-  cellText.append(to_string(myHeader->magicNumber));
-  setCDKMatrixCell(myMatrix, 1, 1, cellText.c_str());
+  sprintf(buffer, "Magic: 0x%.8X", myHeader->magicNumber);
+  setCDKMatrixCell(myMatrix, 1, 1, buffer);
   
   // build the text for cell (1,2) and insert it into cell (1,2)
   cellText = "Version: ";
